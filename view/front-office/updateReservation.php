@@ -17,14 +17,12 @@ if (
   ) {
     $reservation = new Reservation(
       $_POST["date_reservation"],
-      $id_offre,
+      0,
       isset($_GET['v']) ? intval($_GET['v']) : null,
       1
     );
-
     $reservationC->update($reservation, $id);
     header("Location: myReservations.php");
-    exit();
   } else {
     $error = "Tous les champs sont obligatoires.";
   }

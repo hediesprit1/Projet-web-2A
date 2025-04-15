@@ -50,7 +50,7 @@ class reservationC
     public function update($reservation, $id)
     {
         $sql = "UPDATE reservation SET 
-                date_reservation = :date_reservation,
+                date_reservation = :date_reservation
                 WHERE id = :id";
         $db = config::getConnexion();
         try {
