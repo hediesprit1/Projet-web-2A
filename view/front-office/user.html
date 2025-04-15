@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Index - OnePage Bootstrap Template</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="assets/css/main.css" rel="stylesheet">
+
+  <!-- =======================================================
+  * Template Name: OnePage
+  * Template URL: https://bootstrapmade.com/onepage-multipurpose-bootstrap-template/
+  * Updated: Aug 07 2024 with Bootstrap v5.3.3
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
+</head>
+
+<body class="index-page">
+
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+      <a href="index.html" class="logo d-flex align-items-center me-auto">
+        <!-- Uncomment the line below if you also wish to use an image logo -->
+        <!-- <img src="assets/img/logo.png" alt=""> -->
+        <h1 class="sitename">ShareMyRide</h1>
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <ul>
+            <li><a href="#services" class="active">inscription</a></li>
+       
+
+          <li><a href="#team">Team</a></li>
+      
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+
+      <a class="btn-getstarted" href="#about">Get Started</a>
+
+    </div>
+  </header>
+
+  <main class="main">
+
+    
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing section">
+ 
+      <div class="container">
+        
+        
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="col-lg-8">
+          <form id="inscriptionForm" action="../ajout.php" method="POST" data-aos="fade-up" data-aos-delay="150">
+            <div class="row gy-4">
+          
+              <div class="col-md-6">
+                <input type="text" name="cin" id="cin" class="form-control" placeholder="CIN">
+                <span class="text-danger" id="error-cin"></span>
+              </div>
+          
+              <div class="col-md-6">
+                <input type="text" name="nom" id="nom" class="form-control" placeholder="Nom complet">
+                <span class="text-danger" id="error-nom"></span>
+              </div>
+              <div class="col-md-6">
+                <input type="date" name="daten" id="daten" class="form-control" placeholder="Date de naissancet">
+                <span class="text-danger" id="error-daten"></span>
+              </div>
+          
+          
+              <div class="col-md-6">
+                <input type="email" name="email" id="email" class="form-control" placeholder="Adresse e-mail">
+                <span class="text-danger" id="error-email"></span>
+              </div>
+          
+              <div class="col-md-6">
+                <select name="ville" id="ville" class="form-control">
+                  <option value="">-- Sélectionner une ville --</option>
+              
+                  <!-- Gouvernorat de Tunis -->
+                  <optgroup label="Tunis">
+                    <option value="Tunis">Tunis</option>
+                    <option value="Le Bardo">Le Bardo</option>
+                    <option value="La Marsa">La Marsa</option>
+                    <option value="Carthage">Carthage</option>
+                    <option value="El Menzah">El Menzah</option>
+                    <option value="La Goulette">La Goulette</option>
+                  </optgroup>
+              
+                  <!-- Gouvernorat de l'Ariana -->
+                  <optgroup label="Ariana">
+                    <option value="Ariana Ville">Ariana Ville</option>
+                    <option value="Soukra">Soukra</option>
+                    <option value="Raoued">Raoued</option>
+                    <option value="La Gazelle">La Gazelle</option>
+                    <option value="Borj Louzir">Borj Louzir</option>
+                  </optgroup>
+              
+                  <!-- Gouvernorat de Ben Arous -->
+                  <optgroup label="Ben Arous">
+                    <option value="Ben Arous">Ben Arous</option>
+                    <option value="Ezzahra">Ezzahra</option>
+                    <option value="Hammam Lif">Hammam Lif</option>
+                    <option value="Hammam Chott">Hammam Chott</option>
+                    <option value="Rades">Rades</option>
+                    <option value="Mourouj">Mourouj</option>
+                  </optgroup>
+              
+                  <!-- Gouvernorat de La Manouba -->
+                  <optgroup label="La Manouba">
+                    <option value="La Manouba">La Manouba</option>
+                    <option value="Douar Hicher">Douar Hicher</option>
+                    <option value="Oued Ellil">Oued Ellil</option>
+                    <option value="Denden">Denden</option>
+                    <option value="Tebourba">Tebourba</option>
+                  </optgroup>
+              
+                </select>
+                <span class="text-danger" id="error-ville"></span>
+              </div>
+              
+          
+              <div class="col-md-6">
+                <input type="tel" name="num_tel" id="num_tel" class="form-control" placeholder="Numéro de téléphone">
+                <span class="text-danger" id="error-num_tel"></span>
+              </div>
+          
+              <div class="col-md-12">
+                <input type="text" name="mdp" id="mdp" class="form-control" placeholder="Mot de passe">
+                <span class="text-danger" id="error-mdp"></span>
+              </div>
+          
+              <div class="col-md-12 text-center">
+                <button type="submit" class="btn btn-primary">S'inscrire</button>
+              </div>
+          
+            </div>
+          </form>
+          
+          
+              
+          </div><!-- End Contact Form -->
+  
+        </div>
+
+ 
+    </section><!-- /Contact Section -->
+
+  </main>
+ 
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+
+  <!-- Main JS File -->
+  <script src="assets/js/main.js"></script>
+  <script src="controle.js"></script>
+
+
+</body>
+
+</html>
