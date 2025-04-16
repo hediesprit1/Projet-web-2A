@@ -50,7 +50,7 @@ class offreC
         $db = config::getConnexion();
         try {
             $res = $db->query($sql);
-            return $res->fetch();
+            return $res->fetch(); // tkhali les donné directement utilisable
         } catch (Exception $e) {
             die('Erreur:' . $e->getMessage());
         }
@@ -72,7 +72,7 @@ class offreC
                 'prix' => $offre->getPrix(),
                 'id' => $id
             ]);
-            header("Location: offres.php");
+            header("Location: offres.php"); // redirection
         } catch (Exception $e) {
             echo 'Erreur: ' . $e->getMessage();
         }
