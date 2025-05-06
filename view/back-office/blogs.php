@@ -3,8 +3,15 @@ include('../../controller/blogC.php');
 
 $blogC = new blogC();
 $blogC->delete();
+if (isset($_GET['sort'])) {
+  $blogs = $blogC->sort($_GET['sort']);
+} else if (isset($_GET['search'])) {
+  $blogs = $blogC->search($_GET['search']);
+} else {
+  $blogs = $blogC->read();
+}
+$top = $blogC->getTopBlogsByLikes();
 
-$blogs = $blogC->read();
 ?>
 
 <!DOCTYPE html>
@@ -139,6 +146,7 @@ $blogs = $blogC->read();
           <div class="container-fluid">
             <nav
               class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
+              <form action="" method="get">
               <div class="input-group">
                 <div class="input-group-prepend">
                   <button type="submit" class="btn btn-search pe-1">
@@ -146,10 +154,12 @@ $blogs = $blogC->read();
                   </button>
                 </div>
                 <input
+                  name="search"
                   type="text"
                   placeholder="Search ..."
                   class="form-control" />
               </div>
+              </form>
             </nav>
 
             <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
@@ -255,15 +265,41 @@ $blogs = $blogC->read();
             <table class="table mt-5">
               <thead>
                 <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Titre</th>
-                  <th scope="col">Contenu</th>
-                  <th scope="col">Catégorie</th>
+                  <th scope="col"><a href="?sort=id">#</a></th>
+                  <th scope="col"><a href="?sort=title">Titre</a></th>
+                  <th scope="col"><a href="?sort=content">Contenu</a></th>
+                  <th scope="col"><a href="?sort=category_id">Catégorie</a></th>
                   <th scope="col">Options</th>
                 </tr>
               </thead>
               <tbody>
                 <?php foreach ($blogs as $b): ?>
+                  <tr>
+                    <th scope="row"><?= $b['id'] ?></th>
+                    <td><?= htmlspecialchars($b['title']) ?></td>
+                    <td><?= substr(strip_tags($b['content']), 0, 50) ?>...</td>
+                    <td><?= $b['category_id'] ?></td> <!-- Or use category name if joined -->
+                    <td>
+                      <a href="?delete=<?= $b['id'] ?>" onclick="return confirm('Supprimer ce blog ?');">Supprimer</a> ||
+                      <a href="updateblog.php?update=<?= $b['id'] ?>">Modifier</a>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+            <h2>Top 3 blog</h2>
+            <table class="table mt-5">
+              <thead>
+                <tr>
+                  <th scope="col"><a href="?sort=id">#</a></th>
+                  <th scope="col"><a href="?sort=title">Titre</a></th>
+                  <th scope="col"><a href="?sort=content">Contenu</a></th>
+                  <th scope="col"><a href="?sort=category_id">Catégorie</a></th>
+                  <th scope="col">Options</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($top as $b): ?>
                   <tr>
                     <th scope="row"><?= $b['id'] ?></th>
                     <td><?= htmlspecialchars($b['title']) ?></td>

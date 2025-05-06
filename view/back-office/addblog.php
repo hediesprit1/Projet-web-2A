@@ -24,8 +24,12 @@ if (
     $error = "Veuillez remplir tous les champs.";
   }
 }
-?>
+include('../../controller/categoryC.php');
 
+$categorieC = new categoryC();
+
+$c = $categorieC->read();
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -315,8 +319,12 @@ if (
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Catégorie ID :</label>
-              <input type="number" class="form-control" id="category_id" name="category_id">
+            <label class="form-label">Catégorie  :</label>
+    <select name="category_id" id="category_id" class="form-control">
+        <?php foreach ($c as $category): ?>
+            <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+        <?php endforeach; ?>
+    </select>
             </div>
 
             <a href="blogs.php" class="btn btn-danger">Annuler</a>
