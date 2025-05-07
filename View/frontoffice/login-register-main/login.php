@@ -1,8 +1,10 @@
 <?php
 session_start();
+
 if (isset($_SESSION["user"])) {
-   header("Location: index.php");
+   header("Location: ../New folder/service-details.php");
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,6 +22,7 @@ if (isset($_SESSION["user"])) {
         if (isset($_POST["login"])) {
            $email = $_POST["email"];
            $password = $_POST["password"];
+           $first_name = $_POST["first_name"];
             require_once "database.php";
             $sql = "SELECT * FROM users WHERE email = '$email'";
             $result = mysqli_query($conn, $sql);
@@ -28,7 +31,9 @@ if (isset($_SESSION["user"])) {
                 if (password_verify($password, $user["password"])) {
                     session_start();
                     $_SESSION["user"] = "yes";
-                    header("Location: /user/view/frontoffice/index.html");
+                    $_SESSION["email"] = $email;
+                   
+                    header("Location: /user/View/frontoffice/New folder/service-details.php");
                     die();
                 }else{
                     echo "<div class='alert alert-danger'>Password does not match</div>";
@@ -49,7 +54,9 @@ if (isset($_SESSION["user"])) {
             <input type="submit" value="Login" name="login" class="btn btn-primary">
         </div>
       </form>
+
      <div><p>Not registered yet <a href="registration.php">Register Here</a></p></div>
     </div>
+    
 </body>
 </html>

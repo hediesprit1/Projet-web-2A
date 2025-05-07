@@ -22,3 +22,15 @@ function readById($conn, $id){
 
     return $user;
 }
+
+function readByemail($conn, $email){
+	$sql = "SELECT * FROM users WHERE email=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$email]);
+
+    if ($stmt->rowCount() > 0) {
+    	$user = $stmt->fetch();
+    }else $user = 0;
+
+    return $user;
+}
