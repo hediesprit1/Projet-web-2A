@@ -41,13 +41,8 @@
                 <textarea class="form-control" id="description" name="description" rows="6" required><?php echo $reclamation->description; ?></textarea>
             </div>
             
-            <div class="form-group">
-                <label for="status">Statut</label>
-                <select class="form-control" id="status" name="status">
-                    <option value="en_cours" <?php echo ($reclamation->status == 'en_cours') ? 'selected' : ''; ?>>En cours</option>
-                    <option value="valider" <?php echo ($reclamation->status == 'valider') ? 'selected' : ''; ?>>Validée</option>
-                </select>
-            </div>
+            <!-- Le statut n'est plus modifiable manuellement -->
+            <input type="hidden" name="status" value="<?php echo $reclamation->status; ?>">
             
             <button type="submit" class="btn btn-success">
                 <i class="fas fa-save"></i> Enregistrer les modifications

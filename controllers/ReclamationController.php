@@ -623,15 +623,13 @@ class ReclamationController {
                 $stmt->bindParam(":creation_date", $creation_date);
                 
                 if($stmt->execute()) {
-                    // If validate checkbox is checked, update reclamation status
-                    if(isset($_POST['validate']) && $_POST['validate'] == 1) {
-                        $query_update = "UPDATE reclamation SET status='valider' WHERE id=:id";
-                        $stmt_update = $this->db->prepare($query_update);
-                        $stmt_update->bindParam(":id", $reclamation_id);
-                        $stmt_update->execute();
-                    }
+                    // Toujours mettre à jour le statut de la réclamation à "validée" lorsqu'un admin répond
+                    $query_update = "UPDATE reclamation SET status='valider' WHERE id=:id";
+                    $stmt_update = $this->db->prepare($query_update);
+                    $stmt_update->bindParam(":id", $reclamation_id);
+                    $stmt_update->execute();
                     
-                    $_SESSION['success'] = "Réponse ajoutée avec succès.";
+                    $_SESSION['success'] = "Réponse ajoutée avec succès et réclamation validée.";
                 } else {
                     $_SESSION['error'] = "Impossible d'ajouter la réponse.";
                 }

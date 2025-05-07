@@ -85,11 +85,13 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            console.dir(response);
+            return response.json();})
         .then(data => {
             // Supprimer l'indicateur de chargement
             chatMessages.removeChild(loadingDiv);
-            
+                console.log(data);
             // Afficher la réponse du chatbot
             if (data.response) {
                 addMessage(data.response, 'bot');
@@ -105,6 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Afficher un message d'erreur
+
             addMessage("Désolé, une erreur s'est produite. Veuillez réessayer.", 'bot');
             console.error('Error:', error);
         })

@@ -97,13 +97,8 @@
                     <textarea class="form-control" name="description" rows="4" required></textarea>
                 </div>
                 
-                <div class="form-group">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="validate" name="validate" value="1">
-                        <label class="form-check-label" for="validate">
-                            Marquer cette réclamation comme validée
-                        </label>
-                    </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Note : L'envoi de cette réponse marquera automatiquement la réclamation comme "validée".
                 </div>
                 
                 <button type="submit" class="btn btn-success">

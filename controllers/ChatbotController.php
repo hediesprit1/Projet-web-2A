@@ -40,16 +40,15 @@ class ChatbotController {
         }
 
         // Clé API Gemini
-        $apiKey = "AIzaSyD_Twlo_xPehYT1TRKEo4otbVfRUF9mbeU";
-        $url = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=" . $apiKey;
-
+        $apiKey = "AIzaSyBL1ekei1alM1Ns_10VZjp9gYPn6KWrZlM";
+        $url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-001:generateContent?key=$apiKey";
         // Préparer les données pour l'API Gemini
         $data = [
             "contents" => [
                 [
                     "parts" => [
                         [
-                            "text" => $message
+                            "text" => "$message"
                         ]
                     ]
                 ]
@@ -59,7 +58,6 @@ class ChatbotController {
                 "maxOutputTokens" => 800
             ]
         ];
-
         // Initier une session cURL
         $ch = curl_init($url);
         
@@ -77,7 +75,6 @@ class ChatbotController {
         
         // Fermer la session cURL
         curl_close($ch);
-
         // Vérifier si la requête a réussi
         if ($httpCode == 200) {
             $responseData = json_decode($response, true);
