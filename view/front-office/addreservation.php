@@ -129,32 +129,84 @@ if (
           </div>
         </div>
         <div class="row gy-4 mt-5">
-          <script>
-            function validateForm(event) {
+        <form id="payment-form" class="p-4 border rounded shadow-sm bg-white" style="max-width: 500px; margin: auto;" method="POST">
+          <div class="mb-3">
+            <label for="date_reservation" class="form-label">Date de réservation :</label>
+            <input type="date" name="date_reservation" id="date_reservation" class="form-control" required>
+          </div>
+
+          <div id="date-error" class="text-danger mb-3"></div>
+
+          <div class="mb-3">
+            <label class="form-label">Carte de crédit :</label>
+            <div id="card-element" class="form-control p-2"></div>
+          </div>
+
+          <div id="card-errors" role="alert" class="text-danger mb-3"></div>
+
+          <button type="submit" class="btn btn-primary w-100">Réserver et payer</button>
+        </form>
+
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            const stripe = Stripe("pk_test_51RLszrQZAxE2QzxhjeNeOivHIH1GOLYPeXXBPSV1MkViWPV4diGGFWGSzJfyczfiNHFTPXLgpkDtUfd8ejKrGw8L00CnG4rcXB");
+            const elements = stripe.elements();
+
+            const card = elements.create('card', {
+              style: {
+                base: {
+                  fontSize: '16px',
+                  color: '#32325d',
+                  '::placeholder': { color: '#aab7c4' }
+                },
+                invalid: {
+                  color: '#fa755a',
+                  iconColor: '#fa755a'
+                }
+              }
+            });
+
+            card.mount('#card-element');
+
+            const form = document.getElementById('payment-form');
+            const cardErrors = document.getElementById('card-errors');
+            const dateErrors = document.getElementById('date-error');
+
+            form.addEventListener('submit', function (event) {
+              event.preventDefault();
+
+              cardErrors.textContent = "";
+              dateErrors.textContent = "";
+
               const dateReservation = document.getElementById('date_reservation').value;
-              const errorDiv = document.getElementById('error');
               const today = new Date();
               const selectedDate = new Date(dateReservation);
-              errorDiv.innerHTML = ""; // Clear previous errors
-              // Set time to 00:00:00 for comparison
+
               today.setHours(0, 0, 0, 0);
               selectedDate.setHours(0, 0, 0, 0);
-              if (selectedDate <= today) {
-                errorDiv.innerHTML = "La date de réservation doit être postérieure à aujourd'hui.";
-                event.preventDefault();
-                return false;
-              }
-              return true;
-            }
-          </script>
-          <form method="post" onsubmit="return validateForm(event);" class="p-4 border rounded shadow-sm bg-light" style="max-width: 500px; margin: auto;">
-            <div class="mb-3">
-              <label for="date_reservation" class="form-label">Date de réservation :</label>
-              <input type="date" name="date_reservation" id="date_reservation" class="form-control" required>
-            </div>
 
-            <button type="submit" class="btn btn-primary w-100">Réserver</button>
-          </form>
+              if (selectedDate <= today) {
+                dateErrors.textContent = "La date de réservation doit être postérieure à aujourd'hui.";
+                return;
+              }
+
+              stripe.createToken(card).then(function (result) {
+                if (result.error) {
+                  cardErrors.textContent = result.error.message;
+                } else {
+                  const hiddenInput = document.createElement('input');
+                  hiddenInput.setAttribute('type', 'hidden');
+                  hiddenInput.setAttribute('name', 'stripeToken');
+                  hiddenInput.setAttribute('value', result.token.id);
+                  form.appendChild(hiddenInput);
+
+                  form.submit();
+                }
+              });
+            });
+          });
+        </script>
+        <script src="https://js.stripe.com/v3/"></script>
 
         </div>
       </div>

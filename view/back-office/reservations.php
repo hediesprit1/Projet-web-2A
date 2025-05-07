@@ -2,6 +2,9 @@
 include('../../controller/reservationC.php');
 $reservationC = new ReservationC();
 $reservations = $reservationC->read();
+if (isset($_GET['reservation_id'])) {
+  $reservationC->generatePDF($_GET['reservation_id']);
+}
 ?>
 
 <!DOCTYPE html>
@@ -257,6 +260,7 @@ $reservations = $reservationC->read();
                   <th>ID Offre</th>
                   <th>ID Véhicule</th>
                   <th>ID Utilisateur</th>
+                  <th>Option</th>
                 </tr>
               </thead>
               <tbody>
@@ -268,6 +272,10 @@ $reservations = $reservationC->read();
                       <td><?= htmlspecialchars($r['id_offre']) ?></td>
                       <td><?= htmlspecialchars($r['id_vehicule']) ?></td>
                       <td><?= htmlspecialchars($r['user_id']) ?></td>
+                      <td>
+                        <!-- Updated button to trigger PDF generation using JavaScript -->
+                        <button class="download-pdf" data-id="<?= htmlspecialchars($r['id']) ?>" data-date="<?= htmlspecialchars($r['date_reservation']) ?>" data-offer="<?= htmlspecialchars($r['id_offre']) ?>" data-vehicle="<?= htmlspecialchars($r['id_vehicule']) ?>" data-user="<?= htmlspecialchars($r['user_id']) ?>">Download PDF</button>
+                      </td>
                     </tr>
                   <?php endforeach; ?>
                 <?php else: ?>
@@ -276,6 +284,77 @@ $reservations = $reservationC->read();
                   </tr>
                 <?php endif; ?>
               </tbody>
+              <!-- jsPDF Library -->
+              <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+              <!-- jsPDF autoTable Plugin -->
+              <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.10/jspdf.plugin.autotable.min.js"></script>
+
+              <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('.download-pdf');
+    buttons.forEach(function(button) {
+      button.addEventListener('click', function() {
+        // Get reservation data from button's data-* attributes
+        const reservationId = button.getAttribute('data-id');
+        const dateReservation = button.getAttribute('data-date');
+        const offer = button.getAttribute('data-offer');
+        const vehicle = button.getAttribute('data-vehicle');
+        const userId = button.getAttribute('data-user');
+
+        // Create PDF using jsPDF
+        const { jsPDF } = window.jspdf;
+
+        // Create a new jsPDF instance
+        const doc = new jsPDF();
+
+        // Add title
+        doc.setFontSize(18);
+        doc.text('Réservation Détails', 10, 10);
+
+        // Define table data
+        const reservationData = [
+          ['ID', reservationId],
+          ['Date de Réservation', dateReservation],
+          ['Offre', offer],
+          ['Véhicule', vehicle],
+          ['Utilisateur', userId]
+        ];
+
+        // Set table positioning
+        const startX = 10;
+        const startY = 20;
+        const rowHeight = 10;
+        const columnWidth = 50;
+
+        // Draw table header
+        doc.setFontSize(12);
+        doc.setFillColor(200, 220, 255);  // Light blue background for header
+        doc.rect(startX, startY, columnWidth, rowHeight, 'F');  // Header background
+        doc.text('Détail', startX + 2, startY + 6);  // Column Title
+        doc.rect(startX + columnWidth, startY, columnWidth, rowHeight, 'F');  // Header background
+        doc.text('Information', startX + columnWidth + 2, startY + 6);  // Column Title
+
+        // Draw the table content
+        reservationData.forEach((row, index) => {
+          const rowY = startY + (index + 1) * rowHeight;
+          
+          doc.rect(startX, rowY, columnWidth, rowHeight);  // Left column border
+          doc.text(row[0], startX + 2, rowY + 6);  // Left column text
+
+          doc.rect(startX + columnWidth, rowY, columnWidth, rowHeight);  // Right column border
+          doc.text(row[1], startX + columnWidth + 2, rowY + 6);  // Right column text
+        });
+
+        // Save the generated PDF
+        doc.save(`reservation_${reservationId}.pdf`);
+      });
+    });
+  });
+</script>
+
+
+
+
             </table>
           </div>
         </div>
