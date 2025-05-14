@@ -1,0 +1,18 @@
+# Redirection vers le front-office
+DirectoryIndex index.php
+
+# Protection des dossiers sensibles
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Protection du controller et du model
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^model/ - [F,L]
+    RewriteRule ^controller/ - [F,L]
+</IfModule>
+
+# Empêcher la navigation dans les répertoires
+Options -Indexes 
