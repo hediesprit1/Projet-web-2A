@@ -1,11 +1,143 @@
 <?php
+// Démarrage de la session
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+// Vérification que l'utilisateur est connecté et est admin
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 'admin') {
+    header('Location: ../login.php');
+    exit;
+}
+
 include('../../controller/typeVehiculeC.php');
 
 $typeVehiculeC = new typeVehiculeC();
 
+// Vérifier si c'est une requête AJAX
+$isAjax = isset($_GET['ajax']) && $_GET['ajax'] == 1;
+
 if (isset($_GET['delete'])) {
   $id = $_GET['delete'];
   $typeVehiculeC->delete($id);
+  // Si c'est une suppression, rediriger vers la même page sans le paramètre delete
+  if (!$isAjax) {
+    header('Location: types.php');
+    exit;
+  }
+}
+
+// Récupérer les paramètres de recherche et filtre
+$searchCategorie = isset($_GET['searchCategorie']) ? trim($_GET['searchCategorie']) : '';
+$filterCapacite = isset($_GET['filterCapacite']) ? intval($_GET['filterCapacite']) : 0;
+
+// Pagination
+$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+$typesPerPage = 5; // Nombre de types par page
+
+// Récupérer tous les types de véhicule
+$db = config::getConnexion();
+
+// Construire la requête pour compter le total avec les filtres
+$countSql = "SELECT COUNT(*) as total FROM typevehicule WHERE 1";
+if ($searchCategorie !== '') {
+    $countSql .= " AND categorie LIKE :categorie";
+}
+if ($filterCapacite > 0) {
+    $countSql .= " AND capacite = :capacite";
+}
+$countQuery = $db->prepare($countSql);
+
+// Lier les paramètres pour la requête de comptage
+if ($searchCategorie !== '') {
+    $countQuery->bindValue(':categorie', "%$searchCategorie%", PDO::PARAM_STR);
+}
+if ($filterCapacite > 0) {
+    $countQuery->bindValue(':capacite', $filterCapacite, PDO::PARAM_INT);
+}
+
+$countQuery->execute();
+$totalCount = $countQuery->fetch()['total'];
+
+// Calcul des pages
+$totalPages = ceil($totalCount / $typesPerPage);
+$page = max(1, min($page, $totalPages > 0 ? $totalPages : 1)); // Assurer que la page est valide
+$offset = ($page - 1) * $typesPerPage;
+
+// Construire la requête avec pagination et filtres
+$sql = "SELECT * FROM typevehicule WHERE 1";
+if ($searchCategorie !== '') {
+    $sql .= " AND categorie LIKE :categorie";
+}
+if ($filterCapacite > 0) {
+    $sql .= " AND capacite = :capacite";
+}
+$sql .= " ORDER BY id LIMIT :offset, :limit";
+$query = $db->prepare($sql);
+
+// Lier les paramètres pour la requête principale
+if ($searchCategorie !== '') {
+    $query->bindValue(':categorie', "%$searchCategorie%", PDO::PARAM_STR);
+}
+if ($filterCapacite > 0) {
+    $query->bindValue(':capacite', $filterCapacite, PDO::PARAM_INT);
+}
+$query->bindValue(':offset', $offset, PDO::PARAM_INT);
+$query->bindValue(':limit', $typesPerPage, PDO::PARAM_INT);
+$query->execute();
+$types = $query->fetchAll();
+
+// Récupérer toutes les capacités distinctes pour le filtre
+$capacites = $db->query('SELECT DISTINCT capacite FROM typevehicule ORDER BY capacite')->fetchAll();
+
+// Si c'est une requête AJAX, renvoyer seulement le HTML des types
+if ($isAjax) {
+    ob_start();
+    foreach ($types as $type): ?>
+      <tr>
+        <td><?= htmlspecialchars($type['type']) ?></td>
+        <td><?= htmlspecialchars($type['capacite']) ?></td>
+        <td><?= htmlspecialchars($type['categorie']) ?></td>
+        <td>
+          <a href="?delete=<?= $type['id'] ?>" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce type de véhicule ?');" class="text-danger">Supprimer</a> || 
+          <a href="updateTypeVehicule.php?update=<?= $type['id'] ?>" class="text-primary">Modifier</a>
+        </td>
+      </tr>
+    <?php endforeach; ?>
+    
+    <!-- Pagination -->
+    <tr>
+      <td colspan="4">
+        <nav aria-label="Pagination des types de véhicule" class="mt-3">
+          <ul class="pagination justify-content-center">
+            <?php if ($page > 1): ?>
+            <li class="page-item">
+              <a class="page-link" href="javascript:void(0)" onclick="loadPage(<?= $page - 1 ?>)">
+                <i class="fa fa-chevron-left"></i>
+              </a>
+            </li>
+            <?php endif; ?>
+            
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+            <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+              <a class="page-link" href="javascript:void(0)" onclick="loadPage(<?= $i ?>)"><?= $i ?></a>
+            </li>
+            <?php endfor; ?>
+            
+            <?php if ($page < $totalPages): ?>
+            <li class="page-item">
+              <a class="page-link" href="javascript:void(0)" onclick="loadPage(<?= $page + 1 ?>)">
+                <i class="fa fa-chevron-right"></i>
+              </a>
+            </li>
+            <?php endif; ?>
+          </ul>
+        </nav>
+      </td>
+    </tr>
+    <?php
+    echo ob_get_clean();
+    exit;
 }
 
 $categories = $typeVehiculeC->read();
@@ -54,6 +186,67 @@ $categories = $typeVehiculeC->read();
 
   <!-- CSS Just for demo purpose, don't include it in your project -->
   <link rel="stylesheet" href="assets/css/demo.css" />
+
+  <style>
+    /* Style moderne pour la pagination */
+    .pagination {
+      display: flex;
+      padding-left: 0;
+      list-style: none;
+      border-radius: 0.25rem;
+    }
+    
+    .page-item:first-child .page-link {
+      margin-left: 0;
+      border-top-left-radius: 50%;
+      border-bottom-left-radius: 50%;
+    }
+    
+    .page-item:last-child .page-link {
+      border-top-right-radius: 50%;
+      border-bottom-right-radius: 50%;
+    }
+    
+    .page-item.active .page-link {
+      z-index: 3;
+      color: #fff;
+      background-color: #007bff;
+      border-color: #007bff;
+    }
+    
+    .page-link {
+      position: relative;
+      display: block;
+      padding: 0.5rem 0.75rem;
+      margin: 0 3px;
+      line-height: 1.25;
+      color: #007bff;
+      text-decoration: none;
+      background-color: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .page-link:hover {
+      z-index: 2;
+      color: #0056b3;
+      text-decoration: none;
+      background-color: #e9ecef;
+      border-color: #dee2e6;
+    }
+    
+    .page-item.active .page-link {
+      background-color: #007bff;
+      border-color: #007bff;
+    }
+  </style>
 </head>
 
 <body>
@@ -244,6 +437,48 @@ $categories = $typeVehiculeC->read();
 
           </div>
 
+          <div class="container mt-4 mb-4">
+            <div class="row g-3 align-items-end">
+              <div class="col-md-4">
+                <label for="searchCategorie" class="form-label">Recherche par catégorie</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fa fa-search"></i></span>
+                  <input type="text" class="form-control" id="searchCategorie" placeholder="Ex: Urbaine, Sport..." value="<?= htmlspecialchars($searchCategorie) ?>">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label for="filterCapacite" class="form-label">Filtrer par capacité</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fa fa-filter"></i></span>
+                  <select class="form-select" id="filterCapacite">
+                    <option value="0">Toutes les capacités</option>
+                    <?php foreach ($capacites as $c): ?>
+                      <option value="<?= htmlspecialchars($c['capacite']) ?>" <?= ($filterCapacite == $c['capacite']) ? 'selected' : '' ?>><?= htmlspecialchars($c['capacite']) ?> places</option>
+                    <?php endforeach; ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <button id="resetBtn" class="btn btn-outline-secondary w-100" <?= (empty($searchCategorie) && $filterCapacite == 0) ? 'style="display: none;"' : '' ?>>
+                  <i class="fa fa-times-circle"></i> Réinitialiser les filtres
+                </button>
+              </div>
+            </div>
+            
+            <!-- Formulaires cachés pour la soumission automatique -->
+            <form id="searchCategorieForm" method="get" style="display: none;">
+              <input type="hidden" name="searchCategorie" id="searchCategorieHidden">
+              <?php if ($filterCapacite > 0): ?>
+                <input type="hidden" name="filterCapacite" value="<?= $filterCapacite ?>">
+              <?php endif; ?>
+            </form>
+            <form id="filterCapaciteForm" method="get" style="display: none;">
+              <input type="hidden" name="filterCapacite" id="filterCapaciteHidden">
+              <?php if ($searchCategorie): ?>
+                <input type="hidden" name="searchCategorie" value="<?= htmlspecialchars($searchCategorie) ?>">
+              <?php endif; ?>
+            </form>
+          </div>
 
           <div class="col-md-15">
             <div class="card card-round">
@@ -258,26 +493,55 @@ $categories = $typeVehiculeC->read();
             <table class="table mt-5">
               <thead>
                 <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Type</th>
-                  <th scope="col">Capacité</th>
-                  <th scope="col">Catégorie</th>
-                  <th scope="col">Options</th>
+                  <th scope="col">TYPE</th>
+                  <th scope="col">CAPACITÉ</th>
+                  <th scope="col">CATÉGORIE</th>
+                  <th scope="col">OPTIONS</th>
                 </tr>
               </thead>
-              <tbody>
-                <?php foreach ($categories as $c): ?>
+              <tbody id="types-table-body">
+                <?php foreach ($types as $type): ?>
                   <tr>
-                    <th scope="row"><?= $c['id'] ?></th>
-                    <td><?= htmlspecialchars($c['type']) ?></td>
-                    <td><?= htmlspecialchars($c['capacite']) ?></td>
-                    <td><?= htmlspecialchars($c['categorie']) ?></td>
+                    <td><?= htmlspecialchars($type['type']) ?></td>
+                    <td><?= htmlspecialchars($type['capacite']) ?></td>
+                    <td><?= htmlspecialchars($type['categorie']) ?></td>
                     <td>
-                      <a href="?delete=<?= $c['id'] ?>" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce type de véhicule ?');">Supprimer</a> ||
-                      <a href="updateTypeVehicule.php?update=<?= $c['id'] ?>">Modifier</a>
+                      <a href="?delete=<?= $type['id'] ?>" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce type de véhicule ?');" class="text-danger">Supprimer</a> || 
+                      <a href="updateTypeVehicule.php?update=<?= $type['id'] ?>" class="text-primary">Modifier</a>
                     </td>
                   </tr>
                 <?php endforeach; ?>
+                
+                <!-- Pagination -->
+                <tr>
+                  <td colspan="4">
+                    <nav aria-label="Pagination des types de véhicule" class="mt-3">
+                      <ul class="pagination justify-content-center">
+                        <?php if ($page > 1): ?>
+                        <li class="page-item">
+                          <a class="page-link" href="javascript:void(0)" onclick="loadPage(<?= $page - 1 ?>)">
+                            <i class="fa fa-chevron-left"></i>
+                          </a>
+                        </li>
+                        <?php endif; ?>
+                        
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                        <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                          <a class="page-link" href="javascript:void(0)" onclick="loadPage(<?= $i ?>)"><?= $i ?></a>
+                        </li>
+                        <?php endfor; ?>
+                        
+                        <?php if ($page < $totalPages): ?>
+                        <li class="page-item">
+                          <a class="page-link" href="javascript:void(0)" onclick="loadPage(<?= $page + 1 ?>)">
+                            <i class="fa fa-chevron-right"></i>
+                          </a>
+                        </li>
+                        <?php endif; ?>
+                      </ul>
+                    </nav>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -507,38 +771,88 @@ $categories = $typeVehiculeC->read();
   <!-- Sweet Alert -->
   <script src="assets/js/plugin/sweetalert/sweetalert.min.js"></script>
 
-  <!-- Kaiadmin JS -->
+  <!-- Core Scripts -->
   <script src="assets/js/kaiadmin.min.js"></script>
 
-  <!-- Kaiadmin DEMO methods, don't include it in your project! -->
-  <script src="assets/js/setting-demo.js"></script>
-  <script src="assets/js/demo.js"></script>
   <script>
-    $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
-      type: "line",
-      height: "70",
-      width: "100%",
-      lineWidth: "2",
-      lineColor: "#177dff",
-      fillColor: "rgba(23, 125, 255, 0.14)",
-    });
-
-    $("#lineChart2").sparkline([99, 125, 122, 105, 110, 124, 115], {
-      type: "line",
-      height: "70",
-      width: "100%",
-      lineWidth: "2",
-      lineColor: "#f3545d",
-      fillColor: "rgba(243, 84, 93, .14)",
-    });
-
-    $("#lineChart3").sparkline([105, 103, 123, 100, 95, 105, 115], {
-      type: "line",
-      height: "70",
-      width: "100%",
-      lineWidth: "2",
-      lineColor: "#ffa534",
-      fillColor: "rgba(255, 165, 52, .14)",
+    // Fonctions pour la pagination AJAX et filtrage
+    document.addEventListener('DOMContentLoaded', function() {
+      const tableBody = document.getElementById('types-table-body');
+      const searchInput = document.getElementById('searchCategorie');
+      const filterSelect = document.getElementById('filterCapacite');
+      const resetBtn = document.getElementById('resetBtn');
+      
+      let currentPage = <?= $page ?>;
+      let currentSearch = '<?= addslashes($searchCategorie) ?>';
+      let currentFilter = <?= $filterCapacite ?>;
+      
+      // Fonction pour charger une page spécifique
+      window.loadPage = function(page) {
+        currentPage = page;
+        loadTypes();
+      }
+      
+      // Gérer la recherche par catégorie
+      searchInput.addEventListener('input', function() {
+        currentSearch = this.value;
+        currentPage = 1; // Revenir à la première page
+        loadTypes(); // Charger immédiatement les résultats
+      });
+      
+      // Gérer le filtre par capacité
+      filterSelect.addEventListener('change', function() {
+        currentFilter = this.value;
+        currentPage = 1; // Revenir à la première page
+        loadTypes(); // Charger immédiatement les résultats
+      });
+      
+      // Réinitialisation des filtres
+      resetBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        filterSelect.value = '0';
+        currentSearch = '';
+        currentFilter = 0;
+        currentPage = 1;
+        loadTypes();
+      });
+      
+      // Fonction pour charger les types via AJAX
+      function loadTypes() {
+        // Mise à jour de l'URL sans recharger la page
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', currentPage);
+        
+        if (currentSearch) {
+          url.searchParams.set('searchCategorie', currentSearch);
+        } else {
+          url.searchParams.delete('searchCategorie');
+        }
+        
+        if (currentFilter > 0) {
+          url.searchParams.set('filterCapacite', currentFilter);
+        } else {
+          url.searchParams.delete('filterCapacite');
+        }
+        
+        window.history.pushState({}, '', url);
+        
+        // Afficher ou masquer le bouton de réinitialisation
+        resetBtn.style.display = (currentSearch || currentFilter > 0) ? 'block' : 'none';
+        
+        // Afficher un indicateur de chargement
+        tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Chargement...</td></tr>';
+        
+        // Faire la requête AJAX
+        fetch(`types.php?page=${currentPage}&searchCategorie=${encodeURIComponent(currentSearch)}&filterCapacite=${currentFilter}&ajax=1`)
+          .then(response => response.text())
+          .then(html => {
+            tableBody.innerHTML = html || '<tr><td colspan="4" class="text-center">Aucun type de véhicule trouvé</td></tr>';
+          })
+          .catch(error => {
+            console.error('Erreur lors du chargement des types:', error);
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Une erreur est survenue. Veuillez réessayer.</td></tr>';
+          });
+      }
     });
   </script>
 </body>

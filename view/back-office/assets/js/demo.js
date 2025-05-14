@@ -172,6 +172,10 @@ const modalShowcase = `
 //   myModal.show();
 // });
 
+// Désactive toutes les notifications Bootstrap Notify
+if (typeof $ !== 'undefined' && typeof $.notify === 'function') {
+  $.notify = function() { return null; };
+}
 
 // Cicle Chart
 Circles.create({
@@ -189,19 +193,19 @@ Circles.create({
 	styleText:    true
 })
 
-//Notify
-$.notify({
-	icon: 'icon-bell',
+
+ $.notify({
+ 	icon: 'icon-bell',
 	title: 'Kaiadmin',
 	message: 'Premium Bootstrap 5 Admin Dashboard',
-},{
-	type: 'secondary',
-	placement: {
+ },{
+ 	type: 'secondary',
+ 	placement: {
 		from: "bottom",
 		align: "right"
-	},
-	time: 1000,
-});
+ 	},
+ 	time: 1000,
+ });
 
 // Jsvectormap
 var world_map = new jsVectorMap({

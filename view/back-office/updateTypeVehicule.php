@@ -23,13 +23,13 @@ if (
       $_POST["categorie"]
     );
     $typeVehiculeC->update($updated, $id);
+    header('Location: types.php');
+    exit();
   } else {
     $error = "Tous les champs sont requis et la capacité doit être un nombre.";
   }
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -243,10 +243,6 @@ if (
                 <ul
                   class="dropdown-menu notif-box animated fadeIn"
                   aria-labelledby="notifDropdown">
-
-
-
-
               </li>
             </ul>
           </div>
@@ -274,62 +270,73 @@ if (
               </div>
             </div>
           </div>
+
+          <?php if (!empty($error)): ?>
+            <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+          <?php endif; ?>
+
           <script>
             document.addEventListener("DOMContentLoaded", function() {
-              const form = document.getElementById("typeForm");
+              let form = document.getElementById("typeForm");
 
               form.addEventListener("submit", function(e) {
-                const type = document.getElementById("type");
-                const capacite = document.getElementById("capacite");
-                const categorie = document.getElementById("categorie");
+                let type = document.getElementById("type");
+                let capacite = document.getElementById("capacite");
+                let categorie = document.getElementById("categorie");
 
                 let valid = true;
 
+                // Validate the "type" field
                 if (type.value.trim() === "") {
-                  document.getElementById("typeError").textContent = "Type requis.";
+                  document.getElementById("typeError").textContent = "Le type est requis.";
                   valid = false;
                 } else {
                   document.getElementById("typeError").textContent = "";
                 }
 
+                // Validate the "capacite" field
                 if (capacite.value.trim() === "") {
-                  document.getElementById("capaciteError").textContent = "Capacité requise.";
+                  document.getElementById("capaciteError").textContent = "La capacité est requise.";
                   valid = false;
-                } else if (!/^\d+$/.test(capacite.value.trim())) {
-                  document.getElementById("capaciteError").textContent = "La capacité doit être un nombre.";
+                } else if (parseInt(capacite.value.trim()) < 2 || parseInt(capacite.value.trim()) > 12) {
+                  document.getElementById("capaciteError").textContent = "La capacité doit être entre 2 et 12.";
                   valid = false;
                 } else {
                   document.getElementById("capaciteError").textContent = "";
                 }
 
+                // Validate the "categorie" field
                 if (categorie.value.trim() === "") {
-                  document.getElementById("categorieError").textContent = "Catégorie requise.";
+                  document.getElementById("categorieError").textContent = "La catégorie est requise.";
                   valid = false;
                 } else {
                   document.getElementById("categorieError").textContent = "";
                 }
 
-                if (!valid) e.preventDefault();
+                // Prevent form submission if validation fails
+                if (!valid) {
+                  e.preventDefault();
+                }
               });
             });
           </script>
 
-          <form id="typeForm" method="post">
+          <form id="typeForm" method="post" action="updateTypeVehicule.php?update=<?= $id ?>">
             <div class="mb-3">
               <label class="form-label">Type :</label>
-              <input type="text" class="form-control" id="type" name="type" value="<?= htmlspecialchars($type['type']) ?>">
+              <input type="text" class="form-control" id="type" name="type" value="<?= htmlspecialchars($type['type']) ?>" required>
               <span id="typeError" style="color:red;"></span>
             </div>
 
             <div class="mb-3">
               <label class="form-label">Capacité :</label>
-              <input type="text" class="form-control" id="capacite" name="capacite" value="<?= htmlspecialchars($type['capacite']) ?>">
+              <input type="number" class="form-control" id="capacite" name="capacite" value="<?= htmlspecialchars($type['capacite']) ?>" min="2" max="12" required>
               <span id="capaciteError" style="color:red;"></span>
             </div>
 
             <div class="mb-3">
               <label class="form-label">Catégorie :</label>
-              <input type="text" class="form-control" id="categorie" name="categorie" value="<?= htmlspecialchars($type['categorie']) ?>">
+              <input type="text" class="form-control" id="categorie" name="categorie" value="<?= htmlspecialchars($type['categorie']) ?>" required>
               <span id="categorieError" style="color:red;"></span>
             </div>
 
@@ -370,168 +377,6 @@ if (
     </footer>
   </div>
 
-  <!-- Custom template | don't include it in your project! -->
-  <div class="custom-template">
-    <div class="title">Settings</div>
-    <div class="custom-content">
-      <div class="switcher">
-        <div class="switch-block">
-          <h4>Logo Header</h4>
-          <div class="btnSwitch">
-            <button
-              type="button"
-              class="selected changeLogoHeaderColor"
-              data-color="dark"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="blue"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="purple"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="light-blue"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="green"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="orange"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="red"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="white"></button>
-            <br />
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="dark2"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="blue2"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="purple2"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="light-blue2"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="green2"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="orange2"></button>
-            <button
-              type="button"
-              class="changeLogoHeaderColor"
-              data-color="red2"></button>
-          </div>
-        </div>
-        <div class="switch-block">
-          <h4>Navbar Header</h4>
-          <div class="btnSwitch">
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="dark"></button>
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="blue"></button>
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="purple"></button>
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="light-blue"></button>
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="green"></button>
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="orange"></button>
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="red"></button>
-            <button
-              type="button"
-              class="selected changeTopBarColor"
-              data-color="white"></button>
-            <br />
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="dark2"></button>
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="blue2"></button>
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="purple2"></button>
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="light-blue2"></button>
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="green2"></button>
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="orange2"></button>
-            <button
-              type="button"
-              class="changeTopBarColor"
-              data-color="red2"></button>
-          </div>
-        </div>
-        <div class="switch-block">
-          <h4>Sidebar</h4>
-          <div class="btnSwitch">
-            <button
-              type="button"
-              class="changeSideBarColor"
-              data-color="white"></button>
-            <button
-              type="button"
-              class="selected changeSideBarColor"
-              data-color="dark"></button>
-            <button
-              type="button"
-              class="changeSideBarColor"
-              data-color="dark2"></button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="custom-toggle">
-      <i class="icon-settings"></i>
-    </div>
-  </div>
-  <!-- End Custom template -->
-  </div>
   <!--   Core JS Files   -->
   <script src="assets/js/core/jquery-3.7.1.min.js"></script>
   <script src="assets/js/core/popper.min.js"></script>
@@ -565,37 +410,8 @@ if (
   <!-- Kaiadmin JS -->
   <script src="assets/js/kaiadmin.min.js"></script>
 
-  <!-- Kaiadmin DEMO methods, don't include it in your project! -->
-  <script src="assets/js/setting-demo.js"></script>
-  <script src="assets/js/demo.js"></script>
-  <script>
-    $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
-      type: "line",
-      height: "70",
-      width: "100%",
-      lineWidth: "2",
-      lineColor: "#177dff",
-      fillColor: "rgba(23, 125, 255, 0.14)",
-    });
-
-    $("#lineChart2").sparkline([99, 125, 122, 105, 110, 124, 115], {
-      type: "line",
-      height: "70",
-      width: "100%",
-      lineWidth: "2",
-      lineColor: "#f3545d",
-      fillColor: "rgba(243, 84, 93, .14)",
-    });
-
-    $("#lineChart3").sparkline([105, 103, 123, 100, 95, 105, 115], {
-      type: "line",
-      height: "70",
-      width: "100%",
-      lineWidth: "2",
-      lineColor: "#ffa534",
-      fillColor: "rgba(255, 165, 52, .14)",
-    });
-  </script>
+  <!-- Custom JS -->
+  <script src="assets/js/validateTypeVehicule.js"></script>
 </body>
 
 </html>

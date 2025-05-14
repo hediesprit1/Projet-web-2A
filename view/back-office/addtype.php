@@ -294,15 +294,12 @@ if (
                   document.getElementById("typeError").textContent = "";
                 }
 
-                // Validate the "capacite" field: required, must be a number, and between 2 and 49
+                // Validate the "capacite" field: required, must be a number, and between 2 and 12
                 if (capacite.value.trim() === "") {
                   document.getElementById("capaciteError").textContent = "La capacité est requise.";
                   valid = false;
-                } else if (!/^\d+$/.test(capacite.value.trim())) {
-                  document.getElementById("capaciteError").textContent = "La capacité doit être un nombre.";
-                  valid = false;
-                } else if (parseInt(capacite.value.trim()) <= 1 || parseInt(capacite.value.trim()) >= 50) {
-                  document.getElementById("capaciteError").textContent = "La capacité doit être entre 2 et 49.";
+                } else if (parseInt(capacite.value.trim()) < 2 || parseInt(capacite.value.trim()) > 12) {
+                  document.getElementById("capaciteError").textContent = "La capacité doit être entre 2 et 12.";
                   valid = false;
                 } else {
                   document.getElementById("capaciteError").textContent = "";
@@ -333,7 +330,7 @@ if (
 
             <div class="mb-3">
               <label class="form-label">Capacité :</label>
-              <input type="text" class="form-control" id="capacite" name="capacite">
+              <input type="number" class="form-control" id="capacite" name="capacite" min="2" max="12" required>
               <span id="capaciteError" style="color:red;"></span>
             </div>
 

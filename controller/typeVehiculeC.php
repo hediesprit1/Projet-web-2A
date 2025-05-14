@@ -1,6 +1,6 @@
 <?php
-require_once('C:/xampp/htdocs/gvehicule/config.php');
-include 'C:/xampp/htdocs/gvehicule/model/TypeVehicule.php';
+require_once(__DIR__ . '/../config.php');
+include_once(__DIR__ . '/../model/TypeVehicule.php');
 
 class typeVehiculeC
 {

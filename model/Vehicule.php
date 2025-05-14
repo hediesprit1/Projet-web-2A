@@ -8,15 +8,17 @@ class Vehicule
     private $modele = null;
     private $marque = null;
     private $typevehicule_id = null; // Added the typevehicule_id
+    private $image = null; // Added image property
 
     // Constructor
-    public function __construct($matricule, $couleur, $modele, $marque, $typevehicule_id = null)
+    public function __construct($matricule, $couleur, $modele, $marque, $typevehicule_id = null, $image = null)
     {
         $this->matricule = $matricule;
         $this->couleur = $couleur;
         $this->modele = $modele;
         $this->marque = $marque;
         $this->typevehicule_id = $typevehicule_id; // Set typevehicule_id
+        $this->image = $image; // Set image
     }
 
     // Getters and Setters
@@ -75,5 +77,16 @@ class Vehicule
     public function setTypevehiculeId($typevehicule_id)
     {
         $this->typevehicule_id = $typevehicule_id;
+    }
+    
+    // Getter and Setter for image
+    public function getImage()
+    {
+        return $this->image;
+    }
+    
+    public function setImage($image)
+    {
+        $this->image = $image;
     }
 }

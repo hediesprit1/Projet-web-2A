@@ -1,8 +1,11 @@
 <?php
 include('../../controller/vehiculeC.php');
+include('../../controller/typeVehiculeC.php');
 $error = "";
 
 $vehiculeC = new vehiculeC();
+$typeVehiculeC = new typeVehiculeC();
+$types = $typeVehiculeC->read();
 
 // Get vehicle by ID from URL
 $id = $_GET['update'];
@@ -21,12 +24,35 @@ if (
     !empty($_POST["modele"]) &&
     !empty($_POST["marque"])
   ) {
+    // Handle image upload
+    $imagePath = null;
+    if(isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+      // Create uploads directory if it doesn't exist
+      $uploadDir = '../../uploads/vehicles/';
+      if(!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+      }
+      
+      // Generate unique filename
+      $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+      $filename = uniqid() . '.' . $extension;
+      $uploadFile = $uploadDir . $filename;
+      
+      // Move uploaded file to target directory
+      if(move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
+        $imagePath = 'uploads/vehicles/' . $filename;
+      } else {
+        $error = "Erreur lors du téléchargement de l'image.";
+      }
+    }
+    
     $updatedVehicule = new Vehicule(
       $_POST["matricule"],
       $_POST["couleur"],
       $_POST["modele"],
       $_POST["marque"],
-      $_POST["typevehicule_id"]
+      $_POST["typevehicule_id"],
+      $imagePath
     );
 
     $vehiculeC->update($updatedVehicule, $id);
@@ -265,7 +291,7 @@ if (
           <div
             class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-5 pb-9">
             <div>
-              <h3 class="fw-bold mb-3">Gestion des blogs</h3>
+              <h3 class="fw-bold mb-3">Gestion des vehicules</h3>
             </div>
 
           </div>
@@ -275,7 +301,7 @@ if (
             <div class="card card-round">
               <div class="card-header">
                 <div class="card-head-row card-tools-still-right">
-                  <div class="card-title">Modifier un blog</div>
+                  <div class="card-title">Modifier un vehicule</div>
                 </div>
               </div>
             </div>
@@ -289,6 +315,7 @@ if (
                 let couleur = document.getElementById("couleur");
                 let modele = document.getElementById("modele");
                 let marque = document.getElementById("marque");
+                let image = document.getElementById("image");
 
                 let valid = true;
 
@@ -319,16 +346,36 @@ if (
                 } else {
                   document.getElementById("marqueError").textContent = "";
                 }
+                
+                // Image validation - check file size and type
+                if (image.files.length > 0) {
+                  const file = image.files[0];
+                  const fileSize = file.size / 1024 / 1024; // size in MB
+                  const fileType = file.type;
+                  
+                  // Check file size (max 5MB)
+                  if (fileSize > 5) {
+                    document.getElementById("imageError").textContent = "L'image ne doit pas dépasser 5MB.";
+                    valid = false;
+                  } 
+                  // Check file type (only accept images)
+                  else if (!fileType.startsWith('image/')) {
+                    document.getElementById("imageError").textContent = "Le fichier doit être une image.";
+                    valid = false;
+                  } else {
+                    document.getElementById("imageError").textContent = "";
+                  }
+                }
 
                 if (!valid) e.preventDefault();
               });
             });
           </script>
 
-          <form id="vehiculeForm" method="post">
+          <form id="vehiculeForm" method="post" enctype="multipart/form-data">
             <div class="mb-3">
               <label class="form-label">Matricule :</label>
-              <input type="text" class="form-control" id="matricule" name="matricule" value="<?= htmlspecialchars($vehicule['matricule']) ?>">
+              <input type="number" class="form-control" id="matricule" name="matricule" value="<?= htmlspecialchars($vehicule['matricule']) ?>" required>
               <span id="matriculeError" style="color:red;"></span>
             </div>
 
@@ -351,8 +398,26 @@ if (
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Type de véhicule (ID) :</label>
-              <input type="number" class="form-control" id="typevehicule_id" name="typevehicule_id" value="<?= htmlspecialchars($vehicule['typevehicule_id']) ?>">
+              <label class="form-label">Type de Véhicule :</label>
+              <select class="form-control" id="typevehicule_id" name="typevehicule_id" required>
+                <option value="">-- Sélectionner un type --</option>
+                <?php foreach ($types as $type): ?>
+                  <option value="<?= $type['id'] ?>" <?= ($vehicule['typevehicule_id'] == $type['id']) ? 'selected' : '' ?>><?= htmlspecialchars($type['type']) ?> (<?= htmlspecialchars($type['categorie']) ?>, <?= htmlspecialchars($type['capacite']) ?> places)</option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Image du véhicule :</label>
+              <?php if (!empty($vehicule['image'])): ?>
+                <div class="mb-2">
+                  <p>Image actuelle:</p>
+                  <img src="../../<?= htmlspecialchars($vehicule['image']) ?>" alt="Current vehicle image" style="max-width: 200px; max-height: 200px;">
+                </div>
+              <?php endif; ?>
+              <input type="file" class="form-control" id="image" name="image" accept="image/*">
+              <span id="imageError" style="color:red;"></span>
+              <small class="form-text text-muted">Laissez vide pour conserver l'image actuelle. Formats acceptés: JPG, PNG, GIF. Taille max: 5MB</small>
             </div>
 
             <a href="vehicules.php" class="btn btn-danger">Annuler</a>

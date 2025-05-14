@@ -1,9 +1,45 @@
+<?php
+// Démarrage de la session
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+// Vérification que l'utilisateur est connecté et est admin
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 'admin') {
+    header('Location: ../login.php');
+    exit;
+}
+
+// Connexion à la base
+require_once('../../config.php');
+$db = config::getConnexion();
+// Statistiques véhicules ajoutés par mois
+$data1 = $db->query("
+    SELECT DATE_FORMAT(date_ajout, '%Y-%m') AS mois, COUNT(*) AS total
+    FROM vehicule
+    GROUP BY mois
+    ORDER BY mois
+")->fetchAll(PDO::FETCH_ASSOC);
+
+// Statistiques des types de véhicules (directement depuis la table typevehicule)
+$data2 = $db->query("
+    SELECT t.type, t.categorie, COUNT(v.id) as nb_vehicules 
+    FROM typevehicule t
+    LEFT JOIN vehicule v ON t.id = v.typevehicule_id
+    GROUP BY t.id
+    ORDER BY t.type
+")->fetchAll(PDO::FETCH_ASSOC);
+
+// Nombre total de types de véhicules
+$totalTypes = $db->query("SELECT COUNT(*) as total FROM typevehicule")->fetch()['total'];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Click&Go</title>
+  <title>ShareMyRide - Administration</title>
   <meta
     content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
     name="viewport" />
@@ -210,10 +246,37 @@
                 <ul
                   class="dropdown-menu notif-box animated fadeIn"
                   aria-labelledby="notifDropdown">
-
-
-
-
+                </ul>
+              </li>
+              
+              <!-- Ajout du menu utilisateur -->
+              <li class="nav-item topbar-icon dropdown hidden-caret" style="margin-left: auto;">
+                <a
+                  class="nav-link dropdown-toggle"
+                  href="#"
+                  id="userDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false">
+                  <i class="fa fa-user-circle" style="font-size: 1.5rem; color: #007bff;"></i>
+                </a>
+                <ul
+                  class="dropdown-menu dropdown-user animated fadeIn"
+                  aria-labelledby="userDropdown">
+                  <li>
+                    <div class="dropdown-user-scroll scrollbar-outer">
+                      <div class="user-box">
+                        <div class="avatar-lg"><i class="fa fa-user"></i></div>
+                        <div class="u-text">
+                          <h4><?= htmlspecialchars($_SESSION['user_prenom'] . ' ' . $_SESSION['user_nom']) ?></h4>
+                          <p class="text-muted"><?= htmlspecialchars($_SESSION['user_email']) ?></p>
+                          <a href="../logout.php" class="btn btn-xs btn-danger btn-sm">Déconnexion</a>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
               </li>
             </ul>
           </div>
@@ -231,19 +294,62 @@
 
           </div>
 
-
-          <div class="col-md-15">
-            <div class="card card-round">
-              <div class="card-header">
-                <div class="card-head-row card-tools-still-right">
-                  <div class="card-title">Dashboard</div>
-                  <div class="card-tools">
-
+          <!-- STATISTIQUES VEHICULES - HIGHCHARTS -->
+          <div class="container mt-4 mb-5">
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="card-title">Statistiques Véhicules</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="row mb-4">
+                      <div class="col-md-6">
+                        <div class="card bg-primary text-white">
+                          <div class="card-body text-center">
+                            <h1 id="total-vehicules" class="display-4"></h1>
+                            <h5>Total Véhicules</h5>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="card bg-success text-white">
+                          <div class="card-body text-center">
+                            <h1 id="total-types" class="display-4"></h1>
+                            <h5>Types de Véhicules</h5>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6 mb-4">
+                        <div id="chart-monthly" style="min-height: 300px;"></div>
+                      </div>
+                      <div class="col-md-6 mb-4">
+                        <div id="chart-types" style="min-height: 300px;"></div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-12">
+                        <table class="table table-striped" id="data-table">
+                          <thead>
+                            <tr>
+                              <th>Mois</th>
+                              <th>Nombre de véhicules</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="card-body p-9">
-                <div class="table-responsive">
+            </div>
+          </div>
+
+
                   <!-- Projects table -->
                 </div>
               </div>
@@ -253,33 +359,7 @@
       </div>
     </div>
 
-    <footer class="footer">
-      <div class="container-fluid d-flex justify-content-between">
-        <nav class="pull-left">
-          <ul class="nav">
-            <li class="nav-item">
-              <a class="nav-link" href="http://www.themekita.com">
-                ThemeKita
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#"> Help </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#"> Licenses </a>
-            </li>
-          </ul>
-        </nav>
-        <div class="copyright">
-          2024, made with <i class="fa fa-heart heart text-danger"></i> by
-          <a href="http://www.themekita.com">ThemeKita</a>
-        </div>
-        <div>
-          Distributed by
-          <a target="_blank" href="https://themewagon.com/">ThemeWagon</a>.
-        </div>
-      </div>
-    </footer>
+
   </div>
 
   <!-- Custom template | don't include it in your project! -->
@@ -480,32 +560,104 @@
   <!-- Kaiadmin DEMO methods, don't include it in your project! -->
   <script src="assets/js/setting-demo.js"></script>
   <script src="assets/js/demo.js"></script>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
   <script>
-    $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
-      type: "line",
-      height: "70",
-      width: "100%",
-      lineWidth: "2",
-      lineColor: "#177dff",
-      fillColor: "rgba(23, 125, 255, 0.14)",
-    });
+    document.addEventListener('DOMContentLoaded', function() {
+      // Convertir les données PHP pour Highcharts
+      const vehiculeData = <?= json_encode($data1) ?>;
+      const typeVehiculeData = <?= json_encode($data2) ?>;
+      const totalTypesNumber = <?= $totalTypes ?>;
 
-    $("#lineChart2").sparkline([99, 125, 122, 105, 110, 124, 115], {
-      type: "line",
-      height: "70",
-      width: "100%",
-      lineWidth: "2",
-      lineColor: "#f3545d",
-      fillColor: "rgba(243, 84, 93, .14)",
-    });
+      // Préparer les données pour Highcharts
+      // 1. Données véhicules par mois
+      const moisLabels = vehiculeData.map(d => d.mois);
+      const totalVehicules = vehiculeData.map(d => parseInt(d.total));
+      const totalVehiculesSum = totalVehicules.reduce((a, b) => a + b, 0);
 
-    $("#lineChart3").sparkline([105, 103, 123, 100, 95, 105, 115], {
-      type: "line",
-      height: "70",
-      width: "100%",
-      lineWidth: "2",
-      lineColor: "#ffa534",
-      fillColor: "rgba(255, 165, 52, .14)",
+      // 2. Données par type de véhicule (directement de la table typevehicule)
+      const typesData = typeVehiculeData.map(type => {
+        return { 
+          name: type.type, 
+          y: parseInt(type.nb_vehicules),
+          custom: { categorie: type.categorie }
+        };
+      });
+
+      // Afficher les KPIs
+      document.getElementById('total-vehicules').textContent = totalVehiculesSum;
+      document.getElementById('total-types').textContent = totalTypesNumber;
+
+      // Graphique mensuel
+      Highcharts.chart('chart-monthly', {
+        chart: {
+          type: 'column'
+        },
+        title: {
+          text: 'Véhicules ajoutés par mois'
+        },
+        xAxis: {
+          categories: moisLabels,
+          title: {
+            text: 'Mois'
+          }
+        },
+        yAxis: {
+          title: {
+            text: 'Nombre de véhicules'
+          }
+        },
+        series: [{
+          name: 'Véhicules',
+          data: totalVehicules,
+          color: '#3498db'
+        }],
+        credits: {
+          enabled: false
+        }
+      });
+
+      // Graphique par type (mise à jour)
+      Highcharts.chart('chart-types', {
+        chart: {
+          type: 'pie'
+        },
+        title: {
+          text: 'Répartition par type de véhicule'
+        },
+        plotOptions: {
+          pie: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+              enabled: true,
+              format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+            },
+            showInLegend: true
+          }
+        },
+        tooltip: {
+          pointFormat: '{point.name}: <b>{point.y}</b> véhicule(s)<br>Catégorie: {point.custom.categorie}'
+        },
+        series: [{
+          name: 'Véhicules',
+          colorByPoint: true,
+          data: typesData
+        }],
+        credits: {
+          enabled: false
+        }
+      });
+
+      // Remplir le tableau de données
+      const tableBody = document.querySelector('#data-table tbody');
+      vehiculeData.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.mois}</td>
+          <td>${item.total}</td>
+        `;
+        tableBody.appendChild(row);
+      });
     });
   </script>
 </body>
