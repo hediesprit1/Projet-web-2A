@@ -1,0 +1,112 @@
+/* Styles pour les pages de réclamation */
+
+.reclamation-detail {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.reclamation-detail h3 {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.reclamation-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    color: #666;
+    background-color: var(--light-color);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.reclamation-description {
+    margin-bottom: 2rem;
+    line-height: 1.8;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.reclamation-object {
+    margin-bottom: 1rem;
+    background-color: var(--light-color);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--secondary-color);
+}
+
+.reclamation-object h4 {
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+/* Styles pour les réponses */
+.responses {
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+.response-item {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border-left: 4px solid var(--secondary-color);
+}
+
+.response-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    color: #666;
+}
+
+.response-form {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: var(--light-color);
+    border-radius: 8px;
+}
+
+.response-form h4 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.responses h4 {
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.form-check {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.form-check-input {
+    margin-left: -1.5rem;
+    margin-top: 0.25rem;
+}
+
+.form-check-label {
+    margin-bottom: 0;
+}
+
+/* Ajustement de l'espacement des boutons dans le header */
+.dashboard-header .btn {
+    margin-left: 0.5rem;
+} 

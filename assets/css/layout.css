@@ -1,0 +1,113 @@
+/* Styles pour la mise en page principale */
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.header {
+    background-color: var(--dark-color);
+    color: #fff;
+    padding: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.header h1 i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.nav {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav li {
+    margin-left: 1.5rem;
+}
+
+.nav a {
+    color: #fff;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.nav a:hover {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.nav a i {
+    margin-right: 0.5rem;
+}
+
+.footer {
+    background-color: var(--dark-color);
+    color: #fff;
+    padding: 1rem 0;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.alert {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+/* Styles pour les titres de section */
+h2 {
+    margin-bottom: 1.5rem;
+    color: var(--dark-color);
+    font-size: 1.8rem;
+}
+
+h2 i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header .container {
+        flex-direction: column;
+    }
+    
+    .nav {
+        margin-top: 1rem;
+    }
+    
+    .nav li:first-child {
+        margin-left: 0;
+    }
+} 
